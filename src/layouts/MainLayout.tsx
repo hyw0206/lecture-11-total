@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import Header from "../components/lyaout/Header.tsx";
-import Home from "../pages/Home.tsx";
+import Header from "../components/layout/Header.tsx";
+import { Outlet } from "react-router";
 
 const LayoutWrapper = styled.div`
   display: flex;
@@ -19,7 +19,7 @@ export default function MainLayout() {
     <LayoutWrapper>
       <Header />
       <MainContent>
-        <Home />
+        <Outlet />
       </MainContent>
     </LayoutWrapper>
   );
