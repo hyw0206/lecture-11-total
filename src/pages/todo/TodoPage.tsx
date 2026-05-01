@@ -1,6 +1,6 @@
 import { useState, type SubmitEvent, useEffect } from "react";
 import styled from "styled-components";
-import { FaPlus } from "react-icons/fa";
+import { FaCheck, FaPlus, FaTrash } from "react-icons/fa";
 
 type TodoType = {
   id: number;
@@ -63,6 +63,51 @@ const AddButton = styled.button`
   }
 `;
 
+const TodoList = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const TodoItem = styled.li<{ $isCompleted: boolean }>`
+  background: ${props => props.theme.colors.background.paper};
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid ${props => props.theme.colors.divider};
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.5s;
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary};
+  }
+  span {
+    flex: 1;
+    font-size: 16px;
+    color: ${props =>
+      props.$isCompleted ? props.theme.colors.text.disabled : props.theme.colors.text.default};
+    text-decoration: ${props => (props.$isCompleted ? "line-through" : "none")};
+  }
+`;
+
+const IconButton = styled.button<{ $colorType: "success" | "error" | "warning" | "info" }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: all 0.3s;
+  color: ${props => props.theme.colors[props.$colorType]};
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 export default function TodoPage() {
   const [inputValue, setInputValue] = useState("");
   const [todos, setTodos] = useState<TodoType[]>(() => {
@@ -87,6 +132,18 @@ export default function TodoPage() {
     // Arr -> json으로 바꿔서 저장
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
+
+  const toggleTodo = (id: number) => {
+    setTodos(
+      todos.map(v => {
+        return v.id === id ? { ...v, isCompleted: !v.isCompleted } : v;
+      }),
+    );
+  };
+
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter(value => value.id !== id));
+  };
   return (
     <Container>
       <Title>Todo List</Title>
@@ -100,11 +157,19 @@ export default function TodoPage() {
           <FaPlus />
         </AddButton>
       </InputSection>
-      <ul>
+      <TodoList>
         {todos.map(v => (
-          <li key={v.id}>{v.text}</li>
+          <TodoItem key={v.id} $isCompleted={v.isCompleted}>
+            <IconButton $colorType={"success"} onClick={() => toggleTodo(v.id)}>
+              <FaCheck />
+            </IconButton>
+            <span>{v.text}</span>
+            <IconButton $colorType={"error"} onClick={() => deleteTodo(v.id)}>
+              <FaTrash />
+            </IconButton>
+          </TodoItem>
         ))}
-      </ul>
+      </TodoList>
     </Container>
   );
 }
